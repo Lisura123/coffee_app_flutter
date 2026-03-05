@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
 // API Configuration and Service
-// Laravel backend runs on port 8000
-const API_BASE_URL = 'http://192.168.1.63:8000/api';
+// Laravel backend on Hostinger
+const API_BASE_URL = 'https://cofee.cameralkstore.com/api';
 
 console.log('API URL:', API_BASE_URL);
 
