@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
 // API Configuration and Service
-// Laravel backend on Hostinger
-const API_BASE_URL = 'https://cofee.cameralkstore.com/api';
+// Laravel backend on Hostinger VPS
+const API_BASE_URL = 'http://cofee.cameralkstore.com/api';
 
 console.log('API URL:', API_BASE_URL);
 
