@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
 // API Configuration and Service
-// Use your computer's local IP address
-const API_BASE_URL = 'http://192.168.0.27:3001/api';
+// Laravel backend runs on port 8000
+const API_BASE_URL = 'http://192.168.1.63:8000/api';
 
 console.log('API URL:', API_BASE_URL);
 
