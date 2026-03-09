@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "showroomorders",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.yourcompany.showroomorders"
