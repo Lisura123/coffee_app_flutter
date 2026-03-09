@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-import 'react-native-url-polyfill/auto';
-
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Types and default data for the order system
+// (Supabase removed - using Laravel API instead)
 
 // User roles
 export type UserRole = 'salesperson' | 'kitchen';
@@ -17,7 +12,7 @@ export type User = {
   role: UserRole;
 };
 
-// Default users for demo (in production, use Supabase Auth)
+// Default users for fallback (production uses Laravel API)
 export const DEFAULT_USERS: User[] = [
   { id: '1', username: 'sales1', name: 'John Sales', role: 'salesperson' },
   { id: '2', username: 'sales2', name: 'Jane Sales', role: 'salesperson' },
