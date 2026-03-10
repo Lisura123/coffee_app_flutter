@@ -4,10 +4,12 @@ import 'providers/auth_provider.dart';
 import 'providers/api_provider.dart';
 import 'screens/onboard_screen.dart';
 import 'screens/home_screen.dart';
+import 'services/notification_service.dart';
 import 'theme/app_colors.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
   runApp(const MyApp());
 }
 

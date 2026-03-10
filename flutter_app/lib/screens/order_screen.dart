@@ -5,6 +5,7 @@ import '../models/menu_item.dart';
 import '../models/order.dart';
 import '../providers/api_provider.dart';
 import '../services/api_service.dart';
+import '../services/notification_service.dart';
 import '../theme/app_colors.dart';
 
 class CartItem {
@@ -28,6 +29,8 @@ class _OrderScreenState extends State<OrderScreen> {
   bool _isSubmitting = false;
   List<Order> _myOrders = [];
   Timer? _refreshTimer;
+  Map<String, String> _previousOrderStatuses = {};
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -49,6 +52,29 @@ class _OrderScreenState extends State<OrderScreen> {
   Future<void> _loadMyOrders() async {
     try {
       final data = await ApiService.getOrders(filter: 'active');
+
+      // Detect status changes and send notifications
+      if (!_isFirstLoad) {
+        for (final order in data) {
+          final prevStatus = _previousOrderStatuses[order.id];
+          if (prevStatus != null && prevStatus != order.status) {
+            final items =
+                order.items
+                    ?.map((i) => '${i.quantity}x ${i.menuItemName}')
+                    .join(', ') ??
+                '';
+            NotificationService.showOrderStatusNotification(
+              tableNumber: order.tableNumber,
+              newStatus: order.status,
+              items: items,
+              id: int.tryParse(order.id) ?? 0,
+            );
+          }
+        }
+      }
+
+      _previousOrderStatuses = {for (final o in data) o.id: o.status};
+      _isFirstLoad = false;
       if (mounted) setState(() => _myOrders = data);
     } catch (e) {
       debugPrint('Could not load orders: $e');

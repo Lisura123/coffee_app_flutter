@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/order.dart';
 import '../providers/api_provider.dart';
 import '../services/api_service.dart';
+import '../services/notification_service.dart';
 import '../theme/app_colors.dart';
 
 class KitchenScreen extends StatefulWidget {
@@ -17,6 +18,8 @@ class _KitchenScreenState extends State<KitchenScreen> {
   List<Order> _orders = [];
   String _filter = 'active'; // 'active' or 'all'
   Timer? _refreshTimer;
+  Set<String> _knownOrderIds = {};
+  bool _isFirstLoad = true;
 
   @override
   void initState() {
@@ -38,6 +41,27 @@ class _KitchenScreenState extends State<KitchenScreen> {
     try {
       final filterParam = _filter == 'active' ? 'active' : null;
       final data = await ApiService.getOrders(filter: filterParam);
+
+      // Detect new pending orders and send notifications
+      if (!_isFirstLoad) {
+        for (final order in data) {
+          if (!_knownOrderIds.contains(order.id) && order.status == 'pending') {
+            final items =
+                order.items
+                    ?.map((i) => '${i.quantity}x ${i.menuItemName}')
+                    .join(', ') ??
+                '';
+            NotificationService.showNewOrderNotification(
+              tableNumber: order.tableNumber,
+              items: items,
+              id: int.tryParse(order.id) ?? 0,
+            );
+          }
+        }
+      }
+
+      _knownOrderIds = data.map((o) => o.id).toSet();
+      _isFirstLoad = false;
       if (mounted) setState(() => _orders = data);
     } catch (e) {
       debugPrint('Kitchen orders fetch error: $e');
