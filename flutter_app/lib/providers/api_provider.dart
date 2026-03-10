@@ -25,16 +25,18 @@ class ApiProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     await checkConnection();
-    // Auto-refresh orders every 10 seconds
+    // Auto-refresh orders every 10 seconds, retry connection if disconnected
     _refreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (_status == ConnectionStatus.connected) {
         refreshOrders();
+      } else if (_status == ConnectionStatus.disconnected) {
+        checkConnection();
       }
     });
   }
 
   /// Check if the API is reachable by hitting /health
-  Future<bool> checkConnection() async {
+  Future<bool> checkConnection({bool isRetry = false}) async {
     _status = ConnectionStatus.connecting;
     _lastError = null;
     notifyListeners();
@@ -49,14 +51,25 @@ class ApiProvider extends ChangeNotifier {
         await Future.wait([loadMenu(), refreshOrders()]);
         return true;
       } else {
+        // Retry once automatically
+        if (!isRetry) {
+          await Future.delayed(const Duration(seconds: 2));
+          return checkConnection(isRetry: true);
+        }
         _status = ConnectionStatus.disconnected;
-        _lastError = 'API returned unhealthy status';
+        _lastError = 'Could not reach server';
         notifyListeners();
         return false;
       }
     } catch (e) {
+      // Retry once automatically
+      if (!isRetry) {
+        await Future.delayed(const Duration(seconds: 2));
+        return checkConnection(isRetry: true);
+      }
       _status = ConnectionStatus.disconnected;
       _lastError = e.toString();
+      debugPrint('Connection check failed: $e');
       notifyListeners();
       return false;
     }

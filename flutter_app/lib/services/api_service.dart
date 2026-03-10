@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/menu_item.dart';
 import '../models/order.dart';
@@ -9,15 +10,20 @@ class ApiService {
 
   // Health check - test API connectivity
   static Future<bool> healthCheck() async {
-    final response = await http
-        .get(Uri.parse('$baseUrl/health'))
-        .timeout(const Duration(seconds: 5));
+    try {
+      final response = await http
+          .get(Uri.parse('$baseUrl/health'))
+          .timeout(const Duration(seconds: 10));
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['status'] == 'ok';
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data['status'] == 'ok';
+      }
+      return false;
+    } catch (e) {
+      debugPrint('Health check failed: $e');
+      return false;
     }
-    return false;
   }
 
   // Login
