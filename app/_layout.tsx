@@ -4,10 +4,18 @@ import { StatusBar } from 'expo-status-bar';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { registerForPushNotifications } from '@/lib/notifications';
 
 function RootLayoutNav() {
   const { user, isLoading } = useAuth();
   const segments = useSegments();
+
+  // Register notifications when user logs in
+  useEffect(() => {
+    if (user) {
+      registerForPushNotifications();
+    }
+  }, [user]);
 
   if (isLoading) {
     return (

@@ -100,20 +100,7 @@ export default function LoginScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* Demo Credentials */}
-          <View style={styles.demoSection}>
-            <Text style={styles.demoTitle}>Demo Accounts</Text>
-            <View style={styles.demoCredentials}>
-              <View style={styles.demoRole}>
-                <Text style={styles.demoRoleTitle}>👤 Salesperson</Text>
-                <Text style={styles.demoText}>sales1 / 1234</Text>
-              </View>
-              <View style={styles.demoRole}>
-                <Text style={styles.demoRoleTitle}>👨‍🍳 Kitchen</Text>
-                <Text style={styles.demoText}>kitchen1 / 1234</Text>
-              </View>
-            </View>
-          </View>
+
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -209,35 +196,5 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
-  demoSection: {
-    marginTop: 32,
-    padding: 16,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-  },
-  demoTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#64748B',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  demoCredentials: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  demoRole: {
-    alignItems: 'center',
-  },
-  demoRoleTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#1E293B',
-    marginBottom: 4,
-  },
-  demoText: {
-    fontSize: 13,
-    color: '#64748B',
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-  },
+
 });

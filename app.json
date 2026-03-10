@@ -29,7 +29,17 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#0EA5E9",
+          "sounds": [],
+          "androidMode": "default",
+          "androidCollapsedTitle": "Showroom Orders"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

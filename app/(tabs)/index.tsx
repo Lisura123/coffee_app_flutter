@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { Coffee, Plus, Minus, Send, X, Clock, ChefHat, CheckCircle, Hash } from 
 import { MenuItem, DEFAULT_MENU_ITEMS, Order } from '@/lib/supabase';
 import { useAuth } from '@/lib/AuthContext';
 import api from '@/lib/api';
+import { notifyOrderStatusChange } from '@/lib/notifications';
 
 type CartItem = {
   menuItem: MenuItem;
@@ -35,6 +36,7 @@ export default function OrderScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [myOrders, setMyOrders] = useState<Order[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const previousOrderStatusRef = useRef<Map<number, string>>(new Map());
 
   // Load menu from API
   useEffect(() => {
@@ -66,7 +68,26 @@ export default function OrderScreen() {
     try {
       // Get active orders (pending/preparing) created by this salesperson
       const data = await api.getOrders('active', parseInt(user.id));
-      setMyOrders(data || []);
+      const orders: Order[] = data || [];
+
+      // Detect status changes and notify
+      if (previousOrderStatusRef.current.size > 0) {
+        for (const order of orders) {
+          const prevStatus = previousOrderStatusRef.current.get(order.id);
+          if (prevStatus && prevStatus !== order.status) {
+            notifyOrderStatusChange(order.table_number, order.status);
+          }
+        }
+      }
+
+      // Update the ref with current statuses
+      const statusMap = new Map<number, string>();
+      for (const order of orders) {
+        statusMap.set(order.id, order.status);
+      }
+      previousOrderStatusRef.current = statusMap;
+
+      setMyOrders(orders);
     } catch (error) {
       console.log('Could not load my orders');
     }

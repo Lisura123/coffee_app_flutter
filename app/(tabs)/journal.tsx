@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
 import { Clock, CheckCircle, ChefHat, XCircle, Hash } from 'lucide-react-native';
 import { Order } from '@/lib/supabase';
 import api from '@/lib/api';
+import { notifyNewOrder } from '@/lib/notifications';
 
 const statusConfig = {
   pending: { label: 'Pending', color: '#F59E0B', bgColor: '#FEF3C7', icon: Clock },
@@ -24,6 +25,7 @@ export default function KitchenScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filter, setFilter] = useState<'active' | 'all'>('active');
+  const previousOrderIdsRef = useRef<Set<string>>(new Set());
 
   const fetchOrders = async (isRefresh = false) => {
     if (isRefresh) setIsRefreshing(true);
@@ -32,6 +34,20 @@ export default function KitchenScreen() {
     try {
       const filterParam = filter === 'active' ? 'active' : undefined;
       const data = await api.getOrders(filterParam);
+      
+      // Check for new orders and send notification
+      if (data && data.length > 0 && previousOrderIdsRef.current.size > 0) {
+        const newOrders = data.filter(
+          (order: Order) => !previousOrderIdsRef.current.has(String(order.id)) && order.status === 'pending'
+        );
+        for (const order of newOrders) {
+          const itemCount = order.items?.length || 0;
+          notifyNewOrder(order.table_number, itemCount, (order as any).created_by_name);
+        }
+      }
+      
+      // Update tracked order IDs
+      previousOrderIdsRef.current = new Set(data.map((o: Order) => String(o.id)));
       setOrders(data);
     } catch (error) {
       console.log('API not available');
@@ -44,6 +60,14 @@ export default function KitchenScreen() {
 
   useEffect(() => {
     fetchOrders();
+  }, [filter]);
+
+  // Auto-refresh every 10 seconds to check for new orders
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+    return () => clearInterval(interval);
   }, [filter]);
 
   const onRefresh = useCallback(() => {
