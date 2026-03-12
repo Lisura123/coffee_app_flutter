@@ -131,6 +131,20 @@ class ApiProvider extends ChangeNotifier {
     await refreshOrders();
   }
 
+  /// Add a new menu item
+  Future<Map<String, dynamic>> addMenuItem({
+    required String name,
+    String category = 'beverages',
+  }) async {
+    final result = await ApiService.createMenuItem(
+      name: name,
+      category: category,
+    );
+    // Refresh menu after adding
+    await loadMenu();
+    return result;
+  }
+
   @override
   void dispose() {
     _refreshTimer?.cancel();

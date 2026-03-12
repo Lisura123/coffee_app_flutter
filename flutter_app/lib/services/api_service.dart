@@ -125,4 +125,25 @@ class ApiService {
     final response = await http.delete(Uri.parse('$baseUrl/orders/$orderId'));
     if (response.statusCode != 200) throw Exception('Failed to delete order');
   }
+
+  // Create menu item
+  static Future<Map<String, dynamic>> createMenuItem({
+    required String name,
+    String category = 'beverages',
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/menu'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'name': name, 'category': category}),
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      final error = jsonDecode(response.body);
+      throw Exception(
+        error['error'] ?? error['message'] ?? 'Failed to add menu item',
+      );
+    }
+
+    return jsonDecode(response.body);
+  }
 }
