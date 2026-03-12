@@ -8,15 +8,36 @@ import '../models/order.dart';
 class ApiService {
   static const String baseUrl = 'https://cofee.cameralkstore.com/api';
 
+  // Common headers for all requests
+  static const Map<String, String> _jsonHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+
+  static const Map<String, String> _acceptHeaders = {
+    'Accept': 'application/json',
+  };
+
+  /// Safely decode JSON, throwing a readable error if the response is not JSON
+  static dynamic _safeDecode(http.Response response) {
+    try {
+      return jsonDecode(response.body);
+    } catch (_) {
+      throw Exception(
+        'Server error (${response.statusCode}). Please try again later.',
+      );
+    }
+  }
+
   // Health check - test API connectivity
   static Future<bool> healthCheck() async {
     try {
       final response = await http
-          .get(Uri.parse('$baseUrl/health'))
+          .get(Uri.parse('$baseUrl/health'), headers: _acceptHeaders)
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = _safeDecode(response);
         return data['status'] == 'ok';
       }
       return false;
@@ -33,24 +54,27 @@ class ApiService {
   ) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _jsonHeaders,
       body: jsonEncode({'username': username, 'password': password}),
     );
 
     if (response.statusCode != 200) {
-      final error = jsonDecode(response.body);
+      final error = _safeDecode(response);
       throw Exception(error['error'] ?? 'Login failed');
     }
 
-    return jsonDecode(response.body);
+    return _safeDecode(response);
   }
 
   // Get menu items
   static Future<List<MenuItem>> getMenu() async {
-    final response = await http.get(Uri.parse('$baseUrl/menu'));
+    final response = await http.get(
+      Uri.parse('$baseUrl/menu'),
+      headers: _acceptHeaders,
+    );
     if (response.statusCode != 200) throw Exception('Failed to fetch menu');
 
-    final List<dynamic> data = jsonDecode(response.body);
+    final List<dynamic> data = _safeDecode(response);
     return data.map((item) => MenuItem.fromJson(item)).toList();
   }
 
@@ -72,16 +96,16 @@ class ApiService {
 
     final response = await http.post(
       Uri.parse('$baseUrl/orders'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _jsonHeaders,
       body: jsonEncode(body),
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      final error = jsonDecode(response.body);
+      final error = _safeDecode(response);
       throw Exception(error['error'] ?? 'Failed to create order');
     }
 
-    return jsonDecode(response.body);
+    return _safeDecode(response);
   }
 
   // Get orders with optional filter and user filter
@@ -94,10 +118,10 @@ class ApiService {
       '$baseUrl/orders',
     ).replace(queryParameters: params.isNotEmpty ? params : null);
 
-    final response = await http.get(uri);
+    final response = await http.get(uri, headers: _acceptHeaders);
     if (response.statusCode != 200) throw Exception('Failed to fetch orders');
 
-    final List<dynamic> data = jsonDecode(response.body);
+    final List<dynamic> data = _safeDecode(response);
     return data.map((item) => Order.fromJson(item)).toList();
   }
 
@@ -108,21 +132,24 @@ class ApiService {
   ) async {
     final response = await http.patch(
       Uri.parse('$baseUrl/orders/$orderId/status'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _jsonHeaders,
       body: jsonEncode({'status': status}),
     );
 
     if (response.statusCode != 200) {
-      final error = jsonDecode(response.body);
+      final error = _safeDecode(response);
       throw Exception(error['error'] ?? 'Failed to update order');
     }
 
-    return jsonDecode(response.body);
+    return _safeDecode(response);
   }
 
   // Delete order
   static Future<void> deleteOrder(int orderId) async {
-    final response = await http.delete(Uri.parse('$baseUrl/orders/$orderId'));
+    final response = await http.delete(
+      Uri.parse('$baseUrl/orders/$orderId'),
+      headers: _acceptHeaders,
+    );
     if (response.statusCode != 200) throw Exception('Failed to delete order');
   }
 
@@ -133,17 +160,17 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/menu'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _jsonHeaders,
       body: jsonEncode({'name': name, 'category': category}),
     );
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      final error = jsonDecode(response.body);
+      final error = _safeDecode(response);
       throw Exception(
         error['error'] ?? error['message'] ?? 'Failed to add menu item',
       );
     }
 
-    return jsonDecode(response.body);
+    return _safeDecode(response);
   }
 }
