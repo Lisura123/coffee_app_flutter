@@ -31,4 +31,27 @@ class MenuController extends Controller
 
         return response()->json($item, 201);
     }
+
+    public function update(\Illuminate\Http\Request $request, $id)
+    {
+        $item = MenuItem::findOrFail($id);
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'category' => 'sometimes|string|max:255',
+            'available' => 'sometimes|boolean',
+        ]);
+
+        $item->update($request->only(['name', 'category', 'available']));
+
+        return response()->json($item);
+    }
+
+    public function destroy($id)
+    {
+        $item = MenuItem::findOrFail($id);
+        $item->delete();
+
+        return response()->json(['message' => 'Menu item deleted successfully']);
+    }
 }

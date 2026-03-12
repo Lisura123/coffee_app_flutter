@@ -17,6 +17,8 @@ Route::get('/users', [AuthController::class, 'users']);
 // Menu
 Route::get('/menu', [MenuController::class, 'index']);
 Route::post('/menu', [MenuController::class, 'store']);
+Route::put('/menu/{id}', [MenuController::class, 'update']);
+Route::delete('/menu/{id}', [MenuController::class, 'destroy']);
 
 // Orders
 Route::get('/orders', [OrderController::class, 'index']);

@@ -145,6 +145,33 @@ class ApiProvider extends ChangeNotifier {
     return result;
   }
 
+  /// Update an existing menu item
+  Future<Map<String, dynamic>> updateMenuItem({
+    required int id,
+    required String name,
+    String category = 'beverages',
+  }) async {
+    final result = await ApiService.updateMenuItem(
+      id: id,
+      name: name,
+      category: category,
+    );
+    await loadMenu();
+    return result;
+  }
+
+  /// Delete a menu item
+  Future<void> deleteMenuItem(int id) async {
+    await ApiService.deleteMenuItem(id);
+    await loadMenu();
+  }
+
+  /// Delete an order
+  Future<void> deleteOrder(int orderId) async {
+    await ApiService.deleteOrder(orderId);
+    await refreshOrders();
+  }
+
   @override
   void dispose() {
     _refreshTimer?.cancel();

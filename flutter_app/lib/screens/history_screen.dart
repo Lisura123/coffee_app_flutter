@@ -31,6 +31,157 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+  Future<void> _handleDeleteOrder(Order order) async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: AppColors.cancelledBg,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.delete_rounded,
+                size: 28,
+                color: AppColors.error,
+              ),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'Delete Order?',
+              style: TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Remove Table ${order.tableNumber} order from history',
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(color: AppColors.border),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      Navigator.of(ctx).pop();
+                      try {
+                        await ApiService.deleteOrder(int.parse(order.id));
+                        if (mounted) {
+                          setState(
+                            () => _orders.removeWhere((o) => o.id == order.id),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle_rounded,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text('Order deleted'),
+                                ],
+                              ),
+                              backgroundColor: AppColors.success,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Failed to delete: ${e.toString().replaceAll('Exception: ', '')}',
+                              ),
+                              backgroundColor: AppColors.error,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.delete_rounded, size: 18),
+                    label: const Text(
+                      'Delete',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.error,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   List<Order> get _completedOrders =>
       _orders.where((o) => o.status == 'completed').toList();
 
@@ -73,8 +224,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
       }
 
       const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
       ];
       return '${months[date.month - 1]} ${date.day}';
     } catch (e) {
@@ -128,7 +289,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.history_rounded, size: 16, color: AppColors.primary),
+                child: const Icon(
+                  Icons.history_rounded,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
               ),
               const SizedBox(width: 8),
               const Text(
@@ -303,7 +468,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: config?.bgColor.withValues(alpha: 0.4) ?? AppColors.background,
+              color:
+                  config?.bgColor.withValues(alpha: 0.4) ??
+                  AppColors.background,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
@@ -315,7 +482,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
                         borderRadius: BorderRadius.circular(8),
@@ -341,7 +511,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Icon(Icons.calendar_today_rounded, size: 12, color: AppColors.textTertiary),
+                    Icon(
+                      Icons.calendar_today_rounded,
+                      size: 12,
+                      color: AppColors.textTertiary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       _formatDate(order.createdAt),
@@ -362,12 +536,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: config?.bgColor ?? AppColors.background,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: config?.color.withValues(alpha: 0.3) ?? AppColors.border,
+                      color:
+                          config?.color.withValues(alpha: 0.3) ??
+                          AppColors.border,
                     ),
                   ),
                   child: Row(
@@ -409,41 +588,45 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   ),
                   child: Column(
                     children: [
-                      ...?order.items?.take(3).map(
-                        (item) => Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '${item.quantity}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.primary,
+                      ...?order.items
+                          ?.take(3)
+                          .map(
+                            (item) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(
+                                        alpha: 0.1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '${item.quantity}',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    item.menuItemName,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                item.menuItemName,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textPrimary,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
                       if (order.items != null && order.items!.length > 3)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
@@ -462,7 +645,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.local_cafe_rounded, size: 14, color: AppColors.textTertiary),
+                    Icon(
+                      Icons.local_cafe_rounded,
+                      size: 14,
+                      color: AppColors.textTertiary,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       '$itemCount ${itemCount == 1 ? 'item' : 'items'} total',
@@ -470,6 +657,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         fontSize: 13,
                         color: AppColors.textSecondary,
                         fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    Material(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () => _handleDeleteOrder(order),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.cancelledBg,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.delete_outline_rounded,
+                                size: 15,
+                                color: AppColors.error,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Delete',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.error,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -531,7 +756,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 if (!isConnecting)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(8),

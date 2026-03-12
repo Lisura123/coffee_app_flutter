@@ -6,6 +6,7 @@ import 'order_screen.dart';
 import 'kitchen_screen.dart';
 import 'history_screen.dart';
 import 'add_menu_item_screen.dart';
+import 'manage_menu_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -217,45 +218,96 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: IndexedStack(index: _currentIndex, children: screens),
       floatingActionButton: isKitchen && _currentIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () async {
-                final added = await Navigator.of(context).push<bool>(
-                  MaterialPageRoute(builder: (_) => const AddMenuItemScreen()),
-                );
-                if (added == true && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle_rounded,
-                            color: Colors.white,
-                            size: 18,
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // Manage Menu button
+                FloatingActionButton.small(
+                  heroTag: 'manage_menu',
+                  onPressed: () async {
+                    final changed = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(
+                        builder: (_) => const ManageMenuScreen(),
+                      ),
+                    );
+                    if (changed == true && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Menu updated successfully'),
+                            ],
                           ),
-                          SizedBox(width: 8),
-                          Text('Menu updated successfully'),
-                        ],
+                          backgroundColor: AppColors.success,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  backgroundColor: AppColors.info,
+                  foregroundColor: Colors.white,
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.edit_note_rounded, size: 22),
+                ),
+                const SizedBox(height: 10),
+                // Add Item button
+                FloatingActionButton.extended(
+                  heroTag: 'add_item',
+                  onPressed: () async {
+                    final added = await Navigator.of(context).push<bool>(
+                      MaterialPageRoute(
+                        builder: (_) => const AddMenuItemScreen(),
                       ),
-                      backgroundColor: AppColors.success,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                }
-              },
-              backgroundColor: const Color(0xFFEF6C00),
-              foregroundColor: Colors.white,
-              elevation: 4,
-              icon: const Icon(Icons.add_rounded, size: 22),
-              label: const Text(
-                'Add Item',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
+                    );
+                    if (added == true && mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Menu updated successfully'),
+                            ],
+                          ),
+                          backgroundColor: AppColors.success,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  backgroundColor: const Color(0xFFEF6C00),
+                  foregroundColor: Colors.white,
+                  elevation: 4,
+                  icon: const Icon(Icons.add_rounded, size: 22),
+                  label: const Text(
+                    'Add Item',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ],
             )
           : null,
       bottomNavigationBar: navItems.length > 1

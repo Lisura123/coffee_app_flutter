@@ -173,4 +173,41 @@ class ApiService {
 
     return _safeDecode(response);
   }
+
+  // Update menu item
+  static Future<Map<String, dynamic>> updateMenuItem({
+    required int id,
+    required String name,
+    String category = 'beverages',
+  }) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/menu/$id'),
+      headers: _jsonHeaders,
+      body: jsonEncode({'name': name, 'category': category}),
+    );
+
+    if (response.statusCode != 200) {
+      final error = _safeDecode(response);
+      throw Exception(
+        error['error'] ?? error['message'] ?? 'Failed to update menu item',
+      );
+    }
+
+    return _safeDecode(response);
+  }
+
+  // Delete menu item
+  static Future<void> deleteMenuItem(int id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/menu/$id'),
+      headers: _acceptHeaders,
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      final error = _safeDecode(response);
+      throw Exception(
+        error['error'] ?? error['message'] ?? 'Failed to delete menu item',
+      );
+    }
+  }
 }
