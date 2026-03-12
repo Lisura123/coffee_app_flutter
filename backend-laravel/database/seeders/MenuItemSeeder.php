@@ -14,6 +14,7 @@ class MenuItemSeeder extends Seeder
             ['name' => 'Tea', 'category' => 'beverages', 'available' => true],
             ['name' => 'Coffee', 'category' => 'beverages', 'available' => true],
             ['name' => 'Hot Chocolate', 'category' => 'beverages', 'available' => true],
+            ['name' => 'Ginger Tea', 'category' => 'beverages', 'available' => true],
         ];
 
         foreach ($items as $item) {

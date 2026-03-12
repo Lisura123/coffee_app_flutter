@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
 
-/// App-wide color constants matching the original design
+/// App-wide color constants — modern, warm palette
 class AppColors {
+  // Primary palette
   static const Color primary = Color(0xFF0EA5E9);
+  static const Color primaryDark = Color(0xFF0284C7);
+  static const Color primaryLight = Color(0xFFE0F2FE);
+
+  // Surfaces
   static const Color background = Color(0xFFF8FAFC);
   static const Color surface = Color(0xFFFFFFFF);
+  static const Color surfaceAlt = Color(0xFFF1F5F9);
+
+  // Text
   static const Color textPrimary = Color(0xFF1E293B);
   static const Color textSecondary = Color(0xFF64748B);
   static const Color textTertiary = Color(0xFF94A3B8);
+
+  // Borders & inputs
   static const Color border = Color(0xFFE2E8F0);
   static const Color inputBg = Color(0xFFF1F5F9);
+
+  // Semantic
   static const Color error = Color(0xFFEF4444);
   static const Color success = Color(0xFF10B981);
   static const Color warning = Color(0xFFF59E0B);
@@ -24,6 +36,19 @@ class AppColors {
   static const Color completedBg = Color(0xFFD1FAE5);
   static const Color cancelledColor = Color(0xFFEF4444);
   static const Color cancelledBg = Color(0xFFFEE2E2);
+
+  // Gradient helpers
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFF0EA5E9), Color(0xFF38BDF8)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient kitchenGradient = LinearGradient(
+    colors: [Color(0xFFEF6C00), Color(0xFFFFA726)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
 
 class StatusConfig {

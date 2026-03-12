@@ -16,6 +16,7 @@ Route::get('/users', [AuthController::class, 'users']);
 
 // Menu
 Route::get('/menu', [MenuController::class, 'index']);
+Route::post('/menu', [MenuController::class, 'store']);
 
 // Orders
 Route::get('/orders', [OrderController::class, 'index']);

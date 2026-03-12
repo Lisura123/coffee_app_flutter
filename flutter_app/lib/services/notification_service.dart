@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -44,15 +45,20 @@ class NotificationService {
     required String items,
     int id = 0,
   }) async {
-    const androidDetails = AndroidNotificationDetails(
-      'new_orders',
-      'New Orders',
-      channelDescription: 'Notifications for new incoming orders',
-      importance: Importance.high,
-      priority: Priority.high,
+    final androidDetails = AndroidNotificationDetails(
+      'new_orders_alarm',
+      'New Orders (Alarm)',
+      channelDescription: 'Alarm notifications for new incoming orders',
+      importance: Importance.max,
+      priority: Priority.max,
       playSound: true,
+      sound: const RawResourceAndroidNotificationSound('kitchen_alarm'),
       enableVibration: true,
+      vibrationPattern: Int64List.fromList([0, 500, 200, 500, 200, 500]),
       icon: '@mipmap/ic_launcher',
+      fullScreenIntent: true,
+      category: AndroidNotificationCategory.alarm,
+      audioAttributesUsage: AudioAttributesUsage.alarm,
     );
 
     const iosDetails = DarwinNotificationDetails(
@@ -61,7 +67,7 @@ class NotificationService {
       presentSound: true,
     );
 
-    const details = NotificationDetails(
+    final details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );

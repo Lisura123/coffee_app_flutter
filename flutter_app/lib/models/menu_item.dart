@@ -32,4 +32,5 @@ final List<MenuItem> defaultMenuItems = [
     category: 'beverages',
     available: true,
   ),
+  MenuItem(id: '5', name: 'Ginger Tea', category: 'beverages', available: true),
 ];

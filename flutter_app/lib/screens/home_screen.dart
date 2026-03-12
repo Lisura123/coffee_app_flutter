@@ -17,25 +17,92 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   void _handleSwitchRole() {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Switch Role'),
-        content: const Text('Go back to role selection?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              context.read<RoleProvider>().clearRole();
-            },
-            style: TextButton.styleFrom(foregroundColor: AppColors.primary),
-            child: const Text('Switch'),
-          ),
-        ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Switch Role?',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Go back to role selection screen',
+              style: TextStyle(fontSize: 15, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: const BorderSide(color: AppColors.border),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      context.read<RoleProvider>().clearRole();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Switch',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
@@ -50,35 +117,39 @@ class _HomeScreenState extends State<HomeScreen> {
     List<Widget> screens;
     List<BottomNavigationBarItem> navItems;
     String titleText;
+    IconData roleIcon;
 
     if (isSalesperson) {
       titleText = 'New Order';
+      roleIcon = Icons.receipt_long_rounded;
       screens = [const OrderScreen()];
       navItems = [
         const BottomNavigationBarItem(
-          icon: Icon(Icons.assignment),
+          icon: Icon(Icons.receipt_long_rounded),
           label: 'New Order',
         ),
       ];
     } else if (isKitchen) {
       titleText = 'Kitchen';
+      roleIcon = Icons.restaurant_rounded;
       screens = [const KitchenScreen(), const HistoryScreen()];
       navItems = [
         const BottomNavigationBarItem(
-          icon: Icon(Icons.restaurant),
+          icon: Icon(Icons.restaurant_rounded),
           label: 'Kitchen',
         ),
         const BottomNavigationBarItem(
-          icon: Icon(Icons.history),
+          icon: Icon(Icons.history_rounded),
           label: 'History',
         ),
       ];
     } else {
       titleText = 'Order System';
+      roleIcon = Icons.receipt_long_rounded;
       screens = [const OrderScreen()];
       navItems = [
         const BottomNavigationBarItem(
-          icon: Icon(Icons.assignment),
+          icon: Icon(Icons.receipt_long_rounded),
           label: 'New Order',
         ),
       ];
@@ -94,30 +165,67 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         elevation: 0,
-        title: Text(
-          titleText,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
+        surfaceTintColor: Colors.transparent,
+        centerTitle: false,
+        title: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: isKitchen
+                    ? AppColors.kitchenGradient
+                    : AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(roleIcon, size: 18, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              titleText,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
         ),
         actions: [
-          IconButton(
-            onPressed: _handleSwitchRole,
-            tooltip: 'Switch role',
-            icon: const Icon(Icons.swap_horiz_rounded,
-                color: AppColors.textSecondary, size: 24),
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            decoration: BoxDecoration(
+              color: AppColors.inputBg,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: IconButton(
+              onPressed: _handleSwitchRole,
+              tooltip: 'Switch role',
+              icon: const Icon(
+                Icons.swap_horiz_rounded,
+                color: AppColors.textSecondary,
+                size: 22,
+              ),
+            ),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: AppColors.border, height: 1),
+        ),
       ),
       body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: navItems.length > 1
           ? Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: AppColors.border, width: 1),
-                ),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    offset: const Offset(0, -2),
+                    blurRadius: 8,
+                  ),
+                ],
               ),
               child: BottomNavigationBar(
                 currentIndex: _currentIndex,
@@ -128,11 +236,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 selectedFontSize: 12,
                 unselectedFontSize: 12,
                 selectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   height: 1.5,
                 ),
                 unselectedLabelStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                   height: 1.5,
                 ),
                 type: BottomNavigationBarType.fixed,
